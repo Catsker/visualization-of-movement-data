@@ -1,0 +1,9 @@
+# Project-level Streamlit settings (read from the directory streamlit is started in;
+# main.py always starts it from the project root).
+
+[server]
+# Start the server straight away: no first-run "Email:" prompt, no auto-opened browser tab.
+headless = true
+
+[browser]
+gatherUsageStats = false

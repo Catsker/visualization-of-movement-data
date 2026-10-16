@@ -221,3 +221,6 @@ __marimo__/
 
 data/*
 !data/.gitkeep
+
+# Heavy media / outputs (videos > 100MB must never reach GitHub)
+*.mp4
