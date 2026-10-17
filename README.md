@@ -16,12 +16,17 @@ The project turns that raw data into three complementary views:
 ## Demo
 
 <!-- Insert the YouTube link here, e.g. [![Demo video](https://img.youtube.com/vi/VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=VIDEO_ID) -->
-**Video:** _YouTube link coming soon_
+**Video:** [_https://youtu.be/r9sNabTIp1o?si=sl7b-HI1ocS1WyGf_](https://youtu.be/r9sNabTIp1o?si=sl7b-HI1ocS1WyGf)
 
 <!-- Insert the screenshot paths here (e.g. put the images in docs/) -->
-![AR overlay on the stereo video](docs/screenshot_video_overlay.png)
-![Offline 3D player](docs/screenshot_html_player.png)
-![Streamlit dashboard](docs/screenshot_dashboard.png)
+**AR overlay on the stereo video:**
+![AR overlay on the stereo video](screenshots/video-overlay.png)
+
+**Offline 3D player:**
+![Offline 3D player](screenshots/3d-player.png)
+
+**Streamlit dashboard:**
+![Streamlit dashboard](screenshots/interactive-dashboard.png)
 
 ---
 
