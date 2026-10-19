@@ -219,52 +219,54 @@ in World Space with `aspectmode='data'`, so the body proportions are not distort
 
 ## Observations & Architectural Decisions
 
-### Projection accuracy: left hand and body
+### Projection accuracy: body skeleton
 
-On the video overlay, the **left hand** and the **body skeleton** (torso, shoulders, arms) fall
-precisely onto the operator's real limbs. This is the key validation of the pipeline. Each of those points travels through the full chain:
+On the video overlay, the **body skeleton** (torso, shoulders, arms) falls precisely onto the
+operator's real body. This is the key validation of the pipeline. Each body point travels through
+the full chain:
 - parsing with the comma-bug fix;
 - the head pose at the interpolated timestamp;
 - the camera extrinsics;
 - the intrinsics.
 
 An error in any of these stages would show up as misalignment, rotation, scale error or lag. None
-is visible, so the transforms, the calibration interpretation and the time synchronization are
-correct.
+is visible, so the transforms and the calibration interpretation are correct.
 
-### Systematic offset of the right hand
+### Systematic spatial offset of both hands
 
-The **right hand**, in contrast, shows a **systematic spatial offset** on the video: its skeleton
-is consistently displaced from the real right hand, while the left hand in the same frames is
-aligned.
+**Both hands**, left and right, show a **systematic spatial offset** on the video: their
+skeletons are consistently displaced from the real hands. The offset is purely spatial. The
+**timing matches**: every hand movement on the overlay happens at the same moment as on the video,
+so the timestamp-based synchronization is correct. The hands are spatially uncalibrated, not out
+of sync.
 
-This cannot be a defect of the projection math. Every point in a frame, left hand, right hand and
-body alike, goes through **the same** `World_to_Camera` matrix and **the same** `K`. A wrong
-transform, wrong intrinsics or a time offset would distort all of them in a consistent way. It
-cannot displace a single limb while leaving the others in place. The error must therefore already
-be present in the **input World Space coordinates of the right hand**. The most likely causes are:
+This cannot be a defect of the projection math. Every point in a frame, body and both hands alike,
+goes through **the same** `World_to_Camera` matrix and **the same** `K`. A wrong transform, wrong
+intrinsics or a time offset would distort the body as well, yet the body stays aligned. The error
+must therefore already be present in the **input World Space coordinates of the hands**. The most
+likely causes are:
 
-* **Hardware calibration error of the right-wrist tracker.** An imperfect offset between the
-  tracking device and the actual wrist or hand shifts every right-hand joint by a roughly constant
+* **Hardware calibration error of the hand / wrist tracking.** An imperfect offset between the
+  tracking device and the actual wrists or hands shifts every hand joint by a roughly constant
   vector.
-* **IK / pose-estimation error.** The tracking runtime reconstructs the hand and arm with an
-  inverse-kinematics or hand-model algorithm. A bias in that solution for one side produces a
-  displacement on that side only.
+* **IK / pose-estimation error.** The tracking runtime reconstructs the hands and arms with an
+  inverse-kinematics or hand-model algorithm. A bias in that solution displaces the hands relative
+  to where they really are.
 
 ### Decision: no manual correction
 
-We **deliberately do not** apply hard-coded pixel offsets (such as `u - 50`) or ad-hoc
-translations to make the right hand "look right":
+We **deliberately do not** calibrate the hands in the visualization layer. No hard-coded pixel
+offsets (such as `u - 50`) or ad-hoc translations are applied to make either hand "look right":
 
 * **Mathematical integrity.** The pipeline stays a pure, physically meaningful transform chain
   from telemetry to pixels, with no parameters tuned by eye. The time offset `TIME_OFFSET_SEC` is
   also kept at `0`.
 * **No masking of data problems.** A fitted offset would hide a real calibration issue in the
   source data instead of reporting it. It would also be valid only for this one recording, this
-  camera position and this distance to the hand.
+  camera position and this distance to the hands.
 * **Traceability.** Every pixel on the overlay can be explained from the raw log and the header
-  calibration. The fix belongs where the error comes from: recalibrating the right-hand tracker or
+  calibration. The fix belongs where the error comes from: recalibrating the hand tracking or
   correcting the IK. It does not belong in the visualization layer.
 
 The 3D player and the dashboard show the same raw World Space data. They can be used to inspect
-the right hand's position relative to the body skeleton independently of the camera model.
+the hands' positions relative to the body skeleton independently of the camera model.
